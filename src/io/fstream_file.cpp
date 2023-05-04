@@ -16,7 +16,7 @@ using namespace io;
 
 FstreamFile::FstreamFile(const std::string& filepath) : FileBase(filepath) {
   stream_.open(filepath, std::ios::in | std::ios::out | std::ios::binary);
-  if (stream_.is_open()) {
+  if (!stream_.is_open()) {
     throw FileSystemException("cannot open " + filepath);
   }
 }

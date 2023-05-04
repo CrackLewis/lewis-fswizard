@@ -9,4 +9,26 @@
  *
  */
 
-int main(int argc, char** argv) { return 0; }
+#include <fstream>
+#include <iostream>
+
+#include "exceptions.hpp"
+#include "v6pp_disk.hpp"
+
+using namespace std;
+
+int main(int argc, char** argv) {
+  try {
+    v6pp::Disk disk("../etc/c.img");
+    disk.load();
+
+    if (1) {
+      // ≥¨º∂øÈ≤‚ ‘°£
+      v6pp::SuperBlock sb = disk.superblock_;
+      0;
+    }
+  } catch (FileSystemException& e) {
+    std::cout << e.what() << std::endl;
+  }
+  return 0;
+}

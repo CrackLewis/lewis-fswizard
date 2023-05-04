@@ -197,7 +197,7 @@ bool Disk::read_blocks(char* dest, i32 block_idx, i32 block_cnt) {
 
   if (!arg_check) {
     auto ex = FileSystemException("Disk::read_blocks: invalid arguments");
-    ex.set_kv("dest", u32(dest));
+    ex.set_kv("dest", u64(dest));
     ex.set_kv("block_idx", block_idx);
     ex.set_kv("block_cnt", block_cnt);
     throw ex;
@@ -223,7 +223,7 @@ bool Disk::write_blocks(const char* src, i32 block_idx, i32 block_cnt) {
 
   if (!arg_check) {
     auto ex = FileSystemException("Disk::write_blocks: invalid arguments");
-    ex.set_kv("src", u32(src));
+    ex.set_kv("src", u64(src));
     ex.set_kv("block_idx", block_idx);
     ex.set_kv("block_cnt", block_cnt);
     throw ex;
@@ -559,7 +559,7 @@ bool Disk::traverse_inode_tree(Inode& inode,
 }
 
 std::unique_ptr<InodeDirectory> Disk::read_inode_directory(
-    Inode& inode, bool ignore_ftype_check = false, int dir_stride = 0) {
+    Inode& inode, bool ignore_ftype_check, int dir_stride) {
   auto ret = std::make_unique<InodeDirectory>();
 
   if (!ignore_ftype_check && inode.file_type_ != FileType::DIR) {

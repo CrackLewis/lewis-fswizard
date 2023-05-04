@@ -77,8 +77,9 @@ class SuperBlock {
   // 磁盘总扇区数 = 20160
   u32 p_size_sectors_ =
       DiskProps::CYLINDERS * DiskProps::HEADS * DiskProps::SECTORS_PER_TRACK;
-  // Inode区起始扇区号 = 200
-  u32 p_off_inodes_ = DiskProps::BLOCKS_BOOT_AND_KERNEL;
+  // Inode区起始扇区号 = 202
+  u32 p_off_inodes_ =
+      DiskProps::BLOCKS_BOOT_AND_KERNEL + DiskProps::BLOCKS_SUPERBLOCK;
   // Inode区扇区数 = 822
   u32 p_size_inodes_ = DiskProps::BLOCKS_INODE_ZONE;
   // 数据区起始扇区号 = 1024
@@ -92,8 +93,11 @@ class SuperBlock {
   u32 p_size_swap_ = DiskProps::BLOCKS_SWAP_ZONE;
   // padding区是否被修改：默认已经被修改了。
   u32 p_mod_ = 1;
+  // 磁盘签名，为了防止和他人生成的磁盘混淆。
+  // OFFSET: 19364H
+  char p_sign_[64] = "Unix V6++ Diskfile by FsWizard, 2053642 Boyu Li";
   // 保留用途。
-  u32 p_blank_[39] = {0};
+  u32 p_blank_[23] = {0};
 } __attribute__((packed));
 
 }  // namespace v6pp

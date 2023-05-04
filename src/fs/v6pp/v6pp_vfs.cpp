@@ -192,5 +192,20 @@ i32 FileSystem::mkdir(const ArgPack& args) {
     return 0;
   }
 
-  
+  // TODO: implement
+  return 0;
 }
+
+i32 FileSystem::rmdir(const ArgPack& args) { return 0; }
+
+i32 FileSystem::touch(const ArgPack& args) { return 0; }
+i32 FileSystem::rm(const ArgPack& args) { return 0; }
+i32 FileSystem::cp(const ArgPack& args) { return 0; }
+i32 FileSystem::mv(const ArgPack& args) { return 0; }
+
+i32 FileSystem::ls(const ArgPack& args) { return 0; }
+
+i32 FileSystem::upload(const ArgPack& args) { return 0; }
+i32 FileSystem::download(const ArgPack& args) { return 0; }
+
+i32 FileSystem::format(const ArgPack& args) { return 0; }

@@ -26,6 +26,10 @@ class FileSystemException : public std::exception {
     dict_[key] = std::to_string(value);
   }
 
+  void set_kv(const std::string& key, const std::string& value) {
+    dict_[key] = value;
+  }
+
  protected:
   std::string stmt_;
   std::map<std::string, std::string> dict_;
