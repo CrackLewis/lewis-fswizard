@@ -13,6 +13,7 @@
 #define V6PP_SUPERBLOCK_HPP_
 
 #include "defines.hpp"
+#include "io_file.hpp"
 
 namespace v6pp {
 
@@ -23,7 +24,20 @@ namespace v6pp {
  */
 class SuperBlock {
  public:
-  // TODO: SuperBlock methods
+  static constexpr u32 SUPER_BLOCK_OFFSET =
+      DiskProps::BLOCKS_BOOT_AND_KERNEL * DiskProps::BLOCK_SIZE;
+
+ public:
+  char* data();
+
+  const char* data() const;
+  // 从磁盘文件载入超级块。
+  bool load(io::FileBase& file);
+  // 向磁盘文件写入超级块。
+  bool update(io::FileBase& file);
+  // 重置超级块，用于格式化工作。
+  void format();
+
  public:
   /**
    * @brief

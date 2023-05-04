@@ -47,10 +47,11 @@ class DirectoryEntry {
 class InodeDirectory {
  public:
   ~InodeDirectory() {
-    if (entries_) delete[] entries_;
+    if (entries_) {
+      delete[] entries_;
+      entries_ = nullptr;
+    }
   }
-
-  // TODO: InodeDirectory constructors and methods
 
  public:
   size_t length_ = 0;

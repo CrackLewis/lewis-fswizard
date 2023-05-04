@@ -1,12 +1,14 @@
 /**
- * @file main.cpp
+ * @file vfs.cpp
  * @author CrackLewis (ghxx040406@163.com)
  * @brief
  * @version 0.1.0
- * @date 2023-05-04 11:12:54
+ * @date 2023-05-03 11:40:43
  *
  * @copyright Copyright (c) 2023
  *
  */
 
-int main(int argc, char** argv) { return 0; }
+#include "vfs.hpp"
+
+FileSystemBase::~FileSystemBase() {}
