@@ -89,7 +89,7 @@ i32 FileSystem::cd(const ArgPack& args) {
   }
 
   // 路径分段和检查。
-  bool is_absolute = !(args[0][0] == '/' || args[0][0] == '\\');
+  bool is_absolute = (args[0][0] == '/' || args[0][0] == '\\');
   std::vector<std::string> pathsegs;
   std::string buf = "";
   for (char ch : args[0]) {
