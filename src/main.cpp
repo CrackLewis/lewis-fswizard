@@ -22,11 +22,7 @@ int main(int argc, char** argv) {
     v6pp::Disk disk("../etc/c.img");
     disk.load();
 
-    if (1) {
-      // ≥¨º∂øÈ≤‚ ‘°£
-      v6pp::SuperBlock sb = disk.superblock_;
-      0;
-    }
+    disk.
   } catch (FileSystemException& e) {
     std::cout << e.what() << std::endl;
   }
