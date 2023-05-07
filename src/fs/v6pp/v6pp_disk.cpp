@@ -249,7 +249,7 @@ bool Disk::read_file(char* dest, Inode& inode) {
 }
 
 bool Disk::write_file(const char* src, Inode& inode, i32 fsize) {
-  // V6++文件的最大大小。原作者犯了个笔误XD
+  // V6++文件的最大大小。
   static const i32 FSIZE_MAX =
       DiskProps::BLOCK_SIZE * (6 + 2 * 128 + 2 * 128 * 128);
   if (fsize > FSIZE_MAX) {
@@ -282,7 +282,7 @@ bool Disk::write_file(const char* src, Inode& inode, i32 fsize) {
 }
 
 i32 Disk::alloc_block() {
-  i32 ret;
+  i32 ret = -1;
   if (superblock_.s_nfree_ == 0) {
     // 情形一：盘块已经用尽。
     ret = -1;
@@ -293,8 +293,7 @@ i32 Disk::alloc_block() {
     // 情形三：当前空闲盘块是索引盘块。
     ret = superblock_.s_free_[0];
     Block b;
-    // 原作者直接readBlock，这里怀疑一下，感觉如果
-    // 是最后一个索引表，应该规避读取0扇区的特殊情况。
+    // 如果是最后一个索引表，应该规避读取0扇区的特殊情况。
     if (ret != 0)
       read_block(b, ret);
     else
@@ -304,7 +303,7 @@ i32 Disk::alloc_block() {
     memcpy(&superblock_.s_nfree_, b.data(), 101 * sizeof(u32));
   }
 
-  if (ret >= DiskProps::get_disk_blocks()) {
+  if (ret >= i32(DiskProps::get_disk_blocks())) {
     auto ex = FileSystemException("Disk::alloc_block: invalid block index");
     ex.set_kv("ret", ret);
     throw ex;
@@ -313,7 +312,7 @@ i32 Disk::alloc_block() {
 }
 
 void Disk::free_block(i32 idx) {
-  if (idx < 0 || idx >= DiskProps::get_disk_blocks()) {
+  if (idx < 0 || idx >= i32(DiskProps::get_disk_blocks())) {
     auto ex = FileSystemException("Disk::free_block: invalid block index");
     ex.set_kv("idx", idx);
     throw ex;

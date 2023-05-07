@@ -22,9 +22,18 @@ int main(int argc, char** argv) {
     v6pp::Disk disk("../etc/c.img");
     disk.load();
 
-    disk.
+    i32 ret;
+    std::vector<i32> blocks;
+    while (1) {
+      ret = disk.alloc_block();
+      if (ret == -1) {
+        break;
+      }
+      blocks.push_back(ret);
+    }
+    std::cout << blocks.size() << std::endl;
   } catch (FileSystemException& e) {
     std::cout << e.what() << std::endl;
   }
   return 0;
-}
+} 

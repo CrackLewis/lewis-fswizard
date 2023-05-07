@@ -12,3 +12,6 @@ aux_source_directory(src/util SRC_UTIL)
 
 add_executable(fswizard src/main.cpp ${SRC_COMMON} ${SRC_FS_V6PP} ${SRC_IO} ${SRC_UTIL})
 target_include_directories(fswizard PRIVATE include)
+
+add_executable(testargs src/app/testargs.cpp src/common/argparse.cpp)
+target_include_directories(testargs PRIVATE include)
