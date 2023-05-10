@@ -71,7 +71,9 @@ class DiskInodeTravesalMixin {
   std::function<void(i32 cur_idx, i32 father_idx)> file_handler_ = [](...) {};
   // π ’œ¥¶¿Ì°£
   std::function<void(Inode& inode, const std::string& errmsg)>
-      failure_handler_ = [](...) {};
+      failure_handler_ = [](Inode&, const std::string& errmsg) {
+        throw FileSystemException(errmsg);
+      };
 };
 
 /**

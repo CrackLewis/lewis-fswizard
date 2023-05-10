@@ -111,7 +111,7 @@ void Disk::load() {
  * 格式化并不会重设引导、内核，也不会彻底抹掉磁盘数据。
  */
 void Disk::format() {
-  // TODO: 这个功能交给虚拟文件系统实现。
+  // 已经被v6pp::FileSystem::format()实现。
 }
 
 /**
