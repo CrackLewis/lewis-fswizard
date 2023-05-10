@@ -17,3 +17,9 @@ target_include_directories(testargs PRIVATE include)
 
 add_executable(testimage src/app/testimage.cpp ${SRC_V6PP})
 target_include_directories(testimage PRIVATE include)
+
+add_executable(testvfs src/app/testvfs.cpp ${SRC_V6PP})
+target_include_directories(testvfs PRIVATE include)
+
+add_executable(alterimage src/app/alterimage.cpp ${SRC_V6PP})
+target_include_directories(alterimage PRIVATE include)

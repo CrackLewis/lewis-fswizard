@@ -72,9 +72,10 @@ class FileSystem : public FileSystemBase {
 
   i32 format(const ArgPack& args = {}) override;
 
+  std::string _getcwd();
+
  protected:
   std::vector<i32> _pwalk(const std::string& path, bool to_directory);
-  std::string _getcwd();
   Inode& _touch(const std::string& path, FileType ftype);
   void _rmfile(const std::string& path, FileType ftype);
 

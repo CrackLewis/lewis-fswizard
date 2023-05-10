@@ -107,14 +107,8 @@ i32 FileSystem::pwd(const ArgPack& args) {
     return 0;
   }
 
-  try {
-    std::string path = _getcwd();
-
-    config_.speaker_(path);
-  } catch (FileSystemException& e) {
-    // 当前到达的路径不再存在，是一个严重情形。
-    throw std::runtime_error(e.what());
-  }
+  std::string path = _getcwd();
+  config_.speaker_(path);
   return 0;
 }
 
@@ -171,7 +165,7 @@ i32 FileSystem::rm(const ArgPack& args) {
 
   try {
     auto idx_stk = _pwalk(args[0], false);
-    auto inode = disk_->inodes_[idx_stk.back()];
+    Inode& inode = disk_->inodes_[idx_stk.back()];
 
     // 目录类型：需要和用户确认。
     if (inode.file_type_ == FileType::DIR) {
@@ -199,7 +193,7 @@ i32 FileSystem::rm(const ArgPack& args) {
             while (cwd.back() == '/' || cwd.back() == '\\') cwd.pop_back();
 
             for (i32 idx = 0; idx < dir->length_; ++idx) {
-              auto subnode = disk_->inodes_[dir->entries_[idx].inode_id_];
+              Inode& subnode = disk_->inodes_[dir->entries_[idx].inode_id_];
               if (subnode.file_type_ == FileType::DIR) {
                 remove_recurse(subnode, cwd + '/' + dir->entries_[idx].name_);
               }
@@ -212,6 +206,7 @@ i32 FileSystem::rm(const ArgPack& args) {
           };
 
       remove_recurse(inode, args[0]);
+      disk_->free_inode_blocks(inode);
       _rmfile(args[0], FileType::DIR);
     }  // if(inode.file_type_==DIR)
     else {
@@ -235,10 +230,10 @@ i32 FileSystem::cp(const ArgPack& args) {
   try {
     auto src_idx_stk = _pwalk(args[0], false);
 
-    auto src_inode = disk_->inodes_[src_idx_stk.back()];
+    Inode& src_inode = disk_->inodes_[src_idx_stk.back()];
     if (src_inode.file_type_ != FileType::NORMAL)
       throw FileSystemException("source file is not a normal file.");
-    auto dst_inode = _touch(args[1], FileType::NORMAL);
+    Inode& dst_inode = _touch(args[1], FileType::NORMAL);
 
     char* fbuf = new char[(src_inode.d_size_ + DiskProps::BLOCK_SIZE)];
     disk_->read_file(fbuf, src_inode);
@@ -263,7 +258,7 @@ i32 FileSystem::mv(const ArgPack& args) {
 
     Inode& src_inode = disk_->inodes_[src_idx_stk.back()];
     if (src_inode.file_type_ != FileType::NORMAL)
-      throw FileSystemException("source file is not a normal file.");
+      throw FileSystemException("source file is not a normal file: " + args[0]);
     Inode& dst_inode = _touch(args[1], FileType::NORMAL);
 
     char* fbuf = new char[(src_inode.d_size_ + DiskProps::BLOCK_SIZE)];
@@ -313,13 +308,13 @@ i32 FileSystem::ls(const ArgPack& args) {
     }
 
     char logbuf[120];
-    sprintf(logbuf, "%6s%28s%10s%6s%50s", "FType", "FileName", "FileSize",
+    sprintf(logbuf, "%6s%28s%10s%6s%60s", "FType", "FileName", "FileSize",
             "Inode", "BlockID");
     config_.speaker_(logbuf);
 
     for (auto& entry : ls_entries) {
-      sprintf(logbuf, "%6d%28s%10d%6d%5d%5d%5d%5d%5d%5d%5d%5d%5d%5d",
-              entry.ftype_, entry.fname_, entry.fsize_, entry.inode_id_,
+      sprintf(logbuf, "%6d%28s%10d%6d%6d%6d%6d%6d%6d%6d%6d%6d%6d%6d",
+              entry.ftype_, entry.fname_.data(), entry.fsize_, entry.inode_id_,
               entry.block_id_[0], entry.block_id_[1], entry.block_id_[2],
               entry.block_id_[3], entry.block_id_[4], entry.block_id_[5],
               entry.block_id_[6], entry.block_id_[7], entry.block_id_[8],
@@ -485,10 +480,10 @@ std::vector<i32> FileSystem::_pwalk(const std::string& path,
   std::string buf = "";
   for (char ch : path) {
     if (ch == '/' || ch == '\\') {
-      // 该分隔符前有确切路径名，或者该分隔符是绝对路径标识
-      if (buf.length() > 0 || pathsegs.empty())
+      // 该分隔符前有确切路径名
+      if (buf.length() > 0)
         pathsegs.push_back(buf), buf = "";
-      else
+      else if (!pathsegs.empty())
         throw FileSystemException(
             "FileSystem::_pwalk: adjacent delimiters are not permitted.");
     } else {
@@ -537,21 +532,25 @@ std::vector<i32> FileSystem::_pwalk(const std::string& path,
 
 std::string FileSystem::_getcwd() {
   if (inode_idx_stack_.size() == 1) return "/";
-
   std::string path = "";
-  for (i32 sidx = 1; sidx < inode_idx_stack_.size(); ++sidx) {
-    // 在前一级目录的子目录内寻找本级目录的名称。
-    auto predir =
-        disk_->read_inode_directory(disk_->inodes_[inode_idx_stack_[sidx - 1]]);
-    i32 found = 0;
-    for (i32 diridx = 0; diridx < predir->length_; ++diridx) {
-      if (inode_idx_stack_[sidx] == predir->entries_[diridx].inode_id_) {
-        found = 1;
-        (path += '/') += predir->entries_[diridx].name_;
+
+  try {
+    for (i32 sidx = 1; sidx < inode_idx_stack_.size(); ++sidx) {
+      // 在前一级目录的子目录内寻找本级目录的名称。
+      auto predir = disk_->read_inode_directory(
+          disk_->inodes_[inode_idx_stack_[sidx - 1]]);
+      i32 found = 0;
+      for (i32 diridx = 0; diridx < predir->length_; ++diridx) {
+        if (inode_idx_stack_[sidx] == predir->entries_[diridx].inode_id_) {
+          found = 1;
+          (path += '/') += predir->entries_[diridx].name_;
+        }
       }
+      if (!found)
+        throw std::runtime_error("FileSystem::_getcwd: directory missing.");
     }
-    if (!found)
-      throw FileSystemException("FileSystem::pwd: directory missing.");
+  } catch (FileSystemException& e) {
+    throw std::runtime_error("FileSystem::_getcwd: " + e.what());
   }
 
   return path;
@@ -595,9 +594,9 @@ Inode& FileSystem::_touch(const std::string& path, FileType ftype) {
 
   new_inode.file_type_ = ftype;
   parent_dir->entries_[parent_dir->length_].inode_id_ = new_idx;
-  memset(&(parent_dir->entries_[parent_dir->length_]), 0,
+  memset((parent_dir->entries_[parent_dir->length_].name_), 0,
          sizeof(DirectoryEntry::name_));
-  memcpy(&(parent_dir->entries_[parent_dir->length_]), fname.data(),
+  memcpy((parent_dir->entries_[parent_dir->length_].name_), fname.data(),
          fname.length() + 1);
   parent_dir->length_++;
 
@@ -628,7 +627,7 @@ void FileSystem::_rmfile(const std::string& path, FileType ftype) {
 
   if (ftype == FileType::DIR) {
     // 目录不能是VFS当前访问的目录。
-    if (idx_stk.end() == inode_idx_stack_.end())
+    if (idx_stk.back() == inode_idx_stack_.back())
       throw FileSystemException(
           "FileSystem::_rmfile: the directory specified is currently being "
           "visited by VFS.");

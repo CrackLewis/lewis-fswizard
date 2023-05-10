@@ -17,14 +17,16 @@ FileSystemException::FileSystemException(const std::string& statement)
 std::string FileSystemException::what() {
   std::string result = stmt_;
   bool comma = false;
-  result += "(";
-  for (auto&& pair : dict_) {
-    if (comma)
-      result += ",";
-    else
-      comma = true;
-    result += pair.first + ": " + pair.second;
+  if (dict_.size()) {
+    result += "(";
+    for (auto&& pair : dict_) {
+      if (comma)
+        result += ",";
+      else
+        comma = true;
+      result += pair.first + ": " + pair.second;
+    }
+    result += ")";
   }
-  result += ")";
   return result;
 }
