@@ -14,3 +14,6 @@ COMMAND(ls)
 COMMAND(upload)
 COMMAND(download)
 COMMAND(format)
+
+COMMAND(testblock)
+COMMAND(testdisk)

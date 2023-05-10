@@ -471,6 +471,78 @@ i32 FileSystem::format(const ArgPack& args) {
   return 0;
 }
 
+i32 FileSystem::testblock(const ArgPack& args) {
+  if (args.size() != 1) {
+    config_.speaker_("Usage: testblock BLOCKID");
+    return 0;
+  }
+
+  i32 blkid = 0;
+  for (char ch : args[0]) {
+    if (ch < '0' || ch > '9') {
+      config_.speaker_(
+          "testblock: block id has to be an unsigned decimal integer.");
+      return -1;
+    }
+    blkid = blkid * 10 + (ch - '0');
+  }
+
+  try {
+    Block b;
+    disk_->read_block(b, blkid);
+
+    config_.speaker_("Block content: ");
+    const char* pattern =
+        "%-5s %-3s%-3s%-3s%-3s%-3s%-3s%-3s%-3s  "
+        "%-3s%-3s%-3s%-3s%-3s%-3s%-3s%-3s %-16s";
+    char spbuf[150];
+    char lineno[6], splitchar[16][4], content_buf[18];
+    sprintf(spbuf, pattern, "", "00", "01", "02", "03", "04", "05", "06", "07",
+            "08", "09", "0A", "0B", "0C", "0D", "0E", "0F", "Content");
+    config_.speaker_(spbuf);
+
+    auto hexchr = [](i32 digit) {
+      return (digit >= 10) ? (digit - 10 + 'A') : (digit + '0');
+    };
+    char* data = b.data();
+    content_buf[16] = '\0';
+    for (i32 rowid = 0; rowid < 32; ++rowid) {
+      lineno[0] = '0', lineno[1] = hexchr(rowid / 16),
+      lineno[2] = hexchr(rowid % 16), lineno[3] = '0', lineno[4] = '\0';
+      for (i32 colid = 0; colid < 16; ++colid) {
+        unsigned char tbyte = data[rowid * 16 + colid];
+        splitchar[colid][0] = hexchr(tbyte / 16),
+        splitchar[colid][1] = hexchr(tbyte % 16), splitchar[colid][2] = '\0';
+        content_buf[colid] = (tbyte < 32 || tbyte > 126) ? '.' : tbyte;
+      }
+      sprintf(spbuf, pattern, lineno, splitchar[0], splitchar[1], splitchar[2],
+              splitchar[3], splitchar[4], splitchar[5], splitchar[6],
+              splitchar[7], splitchar[8], splitchar[9], splitchar[10],
+              splitchar[11], splitchar[12], splitchar[13], splitchar[14],
+              splitchar[15], content_buf);
+      config_.speaker_(spbuf);
+    }
+  } catch (FileSystemException& e) {
+    config_.speaker_("testblock: " + e.what());
+    return -1;
+  }
+  return 0;
+}
+
+i32 FileSystem::testdisk(const ArgPack& args) {
+  if (args.size() != 0) {
+    config_.speaker_("Usage: testdisk");
+    return 0;
+  }
+
+  try {
+  } catch (FileSystemException& e) {
+    config_.speaker_("testdisk: " + e.what());
+    return -1;
+  }
+  return 0;
+}
+
 std::vector<i32> FileSystem::_pwalk(const std::string& path,
                                     bool to_directory) {
   std::vector<i32> ret = inode_idx_stack_;

@@ -54,7 +54,7 @@ class FileSystem : public FileSystemBase {
 
   ~FileSystem();
 
-#define COMMAND(comm) i32 comm(const ArgPack& args = {}) override;
+#define COMMAND(comm) i32 comm(const ArgPack& args = {});
 #include "commands.inc"
 #undef COMMAND
 

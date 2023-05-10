@@ -64,14 +64,18 @@ void cli(v6pp::FileSystem& fs) {
 #include "commands.inc"
 #undef COMMAND
       std::cout << std::endl;
+      continue;
     }
     if (cli_cmd == "quit") break;
 #define COMMAND(comm)     \
   if (cli_cmd == #comm) { \
     fs.comm(cli_args);    \
+    continue;             \
   }
 #include "commands.inc"
 #undef COMMAND
+
+    std::cout << "Unknown command. Type \"help\" for help." << std::endl;
   }
 }
 
