@@ -498,8 +498,7 @@ bool Disk::traverse_blocks_over_inode(Inode& inode,
 
         size_remaining -= sizeof(Block);
       }  // for(idx)
-      mixin.indirect_block_teardown_((char*)idx_block_l1,
-                                     inode.idx_indirect_[idx1]);
+      mixin.indirect_block_teardown_((char*)idx_block_l1, new_blk_idx);
     }  // for(idx1)
 
     /**
@@ -524,7 +523,7 @@ bool Disk::traverse_blocks_over_inode(Inode& inode,
       for (i32 idx1 = 0; idx1 < ENTRIES_PER_BLOCK && size_remaining > 0;
            ++idx1) {
         // 选择性更新一级间接索引，默认不更新。
-        i32 new_blk_idx = mixin.block_allocator_(inode.idx_indirect_[idx1]);
+        i32 new_blk_idx = mixin.block_allocator_(idx_block_l2[idx1]);
         if (new_blk_idx < 0)
           throw FileSystemException(
               "indirect block allocation failed while traversing (under "
@@ -555,12 +554,10 @@ bool Disk::traverse_blocks_over_inode(Inode& inode,
 
           size_remaining -= sizeof(Block);
         }  // for(idx)
-        mixin.indirect_block_teardown_((char*)idx_block_l1,
-                                       inode.idx_indirect_[idx1]);
+        mixin.indirect_block_teardown_((char*)idx_block_l1, new_blk_idx);
       }  // for(idx1)
 
-      mixin.indirect_block_teardown_((char*)idx_block_l2,
-                                     inode.idx_secondary_indirect_[idx2]);
+      mixin.indirect_block_teardown_((char*)idx_block_l2, new_blk_idx);
     }  // for(idx2)
 
     return true;

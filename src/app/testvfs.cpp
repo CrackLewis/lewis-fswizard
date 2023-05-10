@@ -56,7 +56,7 @@ void exit_handler() {
 
 void subshell(v6pp::FileSystem& fs, const std::vector<std::string>& comms) {
   while (1) {
-    std::cout << "fswizard@fswizard:" << fs._getcwd() << ":$";
+    std::cout << "fswizard@fswizard:" << fs._getcwd() << ":$ ";
     std::string cli, cli_cmd = "";
     std::getline(std::cin, cli);
 
