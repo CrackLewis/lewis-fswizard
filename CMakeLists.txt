@@ -23,3 +23,6 @@ target_include_directories(testvfs PRIVATE include)
 
 add_executable(alterimage src/app/alterimage.cpp ${SRC_V6PP})
 target_include_directories(alterimage PRIVATE include)
+
+add_executable(v6pp-fs-cli src/app/v6pp-fs-cli.cpp ${SRC_V6PP})
+target_include_directories(v6pp-fs-cli PRIVATE include)

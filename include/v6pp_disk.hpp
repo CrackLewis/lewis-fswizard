@@ -17,11 +17,13 @@
 #include <vector>
 
 #include "defines.hpp"
+#include "exceptions.hpp"
 #include "io_file.hpp"
 #include "v6pp_block.hpp"
 #include "v6pp_inode.hpp"
 #include "v6pp_inode_directory.hpp"
 #include "v6pp_superblock.hpp"
+
 
 namespace v6pp {
 

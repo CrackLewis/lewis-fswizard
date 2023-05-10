@@ -54,23 +54,9 @@ class FileSystem : public FileSystemBase {
 
   ~FileSystem();
 
-  i32 cd(const ArgPack& args = {}) override;
-  i32 pwd(const ArgPack& args = {}) override;
-
-  i32 mkdir(const ArgPack& args = {}) override;
-  i32 rmdir(const ArgPack& args = {}) override;
-
-  i32 touch(const ArgPack& args = {}) override;
-  i32 rm(const ArgPack& args = {}) override;
-  i32 cp(const ArgPack& args = {}) override;
-  i32 mv(const ArgPack& args = {}) override;
-
-  i32 ls(const ArgPack& args = {}) override;
-
-  i32 upload(const ArgPack& args = {}) override;
-  i32 download(const ArgPack& args = {}) override;
-
-  i32 format(const ArgPack& args = {}) override;
+#define COMMAND(comm) i32 comm(const ArgPack& args = {}) override;
+#include "commands.inc"
+#undef COMMAND
 
   std::string _getcwd();
 
