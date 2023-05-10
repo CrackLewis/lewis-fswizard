@@ -13,7 +13,7 @@ Expected features:
 ## Courtesy
 
 - [Dr. Rong Deng](https://github.com/Deng-Rong) for OS course and reference materials.
-- [Tianyao Gong](https://github.com/FlowerBlackG) who developed the V6++ disk editor for my shameless reference. (LOL)
+- [Tianyao Gong](https://github.com/FlowerBlackG) who developed the [V6++ disk editor](https://github.com/FlowerBlackG/unix-v6pp-filesystem-editor) for my shameless reference. (LOL)
 
 ## Disclaimer
 
