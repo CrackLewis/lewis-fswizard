@@ -26,7 +26,7 @@ ArgParseRule::ArgParseRule() {}
 
 void ArgParseRule::add_rule(const std::string& arg, unsigned int rule) {
   ARGRULE(typerule_, ArgParseTyperule, 20, 0)
-  ARGRULE(showrule_, ArgParseShowrule, 21, 20)
+  ARGRULE(showrule_, ArgParseShowrule, 22, 20)
 }
 
 #undef ARGRULE

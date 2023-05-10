@@ -15,6 +15,7 @@
 // 挺久以前写的命令行参数解析器了，移植过来。
 
 #include <map>
+#include <ostream>
 #include <string>
 #include <vector>
 

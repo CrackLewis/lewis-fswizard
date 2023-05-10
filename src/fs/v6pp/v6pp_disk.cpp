@@ -250,15 +250,14 @@ bool Disk::read_file(char* dest, Inode& inode) {
 
 bool Disk::write_file(const char* src, Inode& inode, i32 fsize) {
   // V6++文件的最大大小。
-  static const i32 FSIZE_MAX =
-      DiskProps::BLOCK_SIZE * (6 + 2 * 128 + 2 * 128 * 128);
+
   if (fsize > FSIZE_MAX) {
     throw FileSystemException("Disk::write_file: maximum file size exceeded.");
   }
   // 写文件前首先要放弃文件的原内容。
   free_inode_blocks(inode);
 
-  int size_remaining = fsize;
+  i32 size_remaining = fsize;
   inode.d_size_ = size_remaining;
   inode.ilarg_ = !!(size_remaining > sizeof(Block) * 6);
   // 因为V6++目前没做多用户，所以权限目前无所谓。
@@ -398,6 +397,16 @@ i32 Disk::alloc_inode() {
   return -1;
 }
 
+void Disk::free_inode(i32 idx, bool free_blocks) {
+  Inode& inode = inodes_[idx];
+  if (free_blocks) free_inode_blocks(inode);
+
+  inode.format();
+  if (superblock_.s_ninode_ < 100) {
+    superblock_.s_inode_[superblock_.s_ninode_++] = idx;
+  }
+}
+
 void Disk::free_inode_blocks(Inode& inode) {
   DiskBlockTraversalMixin mixin;
   mixin.direct_block_teardown_ = [&](i32 file_offset, i32 blk_idx) {
@@ -409,8 +418,18 @@ void Disk::free_inode_blocks(Inode& inode) {
 
   traverse_blocks_over_inode(inode, mixin);
   inode.d_size_ = 0u;
+  for (i32 idx = 0; idx < 10; ++idx) *(inode.idx_direct_ + idx) = 0;
 }
 
+/**
+ * @brief
+ *
+ * inode内遍历所有数据块。
+ *
+ * ATTENTION:
+ * mixin设置默认不写回索引盘块。
+ * 如果需要修改文件，务必在mixin中设置写回索引盘块。
+ */
 bool Disk::traverse_blocks_over_inode(Inode& inode,
                                       const DiskBlockTraversalMixin& mixin) {
   // 一些常量。
@@ -553,7 +572,7 @@ bool Disk::traverse_blocks_over_inode(Inode& inode,
 
 bool Disk::traverse_inode_tree(Inode& inode,
                                const DiskInodeTravesalMixin& mixin) {
-  // TODO: not implemented, fuck you.
+  // TODO: not implemented lol.
   return false;
 }
 

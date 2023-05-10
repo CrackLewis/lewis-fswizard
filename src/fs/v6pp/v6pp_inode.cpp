@@ -9,4 +9,17 @@
  *
  */
 
+#include <cstring>
+
 #include "v6pp_inode.hpp"
+
+using namespace v6pp;
+
+void Inode::format() {
+  ialloc_ = 0;
+  ilarg_ = 0;
+  d_size_ = 0;
+  memset(idx_direct_, 0, sizeof(idx_direct_));
+  memset(idx_indirect_, 0, sizeof(idx_indirect_));
+  memset(idx_secondary_indirect_, 0, sizeof(idx_secondary_indirect_));
+}

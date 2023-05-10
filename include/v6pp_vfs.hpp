@@ -30,11 +30,12 @@ class FileSystemConfig {
   };
 
  public:
-  // 磁盘、内核、引导文件路径。
+  // 磁盘、内核、引导文件、本地文件系统路径。
   // 默认值假定当前路径在./build中。
   std::string disk_path_ = "../etc/c.img";
   std::string kernel_path_ = "../etc/kernel.bin";
   std::string bootloader_path_ = "../etc/boot.bin";
+  std::string rootfs_path = "../etc/rootfs";
   // 如果磁盘文件尺寸错误，是否格式化整个磁盘。
   bool format_on_disksize_validation_failure_ = true;
   // 用户交互钩子。
@@ -70,6 +71,12 @@ class FileSystem : public FileSystemBase {
   i32 download(const ArgPack& args = {}) override;
 
   i32 format(const ArgPack& args = {}) override;
+
+ protected:
+  std::vector<i32> _pwalk(const std::string& path, bool to_directory);
+  std::string _getcwd();
+  Inode& _touch(const std::string& path, FileType ftype);
+  void _rmfile(const std::string& path, FileType ftype);
 
  protected:
   Disk* disk_;

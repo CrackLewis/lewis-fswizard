@@ -85,6 +85,8 @@ class Disk {
  public:
   // 根文件的Inode编号。
   static constexpr u32 IDX_ROOT_INODE = 1u;
+  static constexpr u32 FSIZE_MAX =
+      DiskProps::BLOCK_SIZE * (6 + 2 * 128 + 2 * 128 * 128);
 
  public:
   explicit Disk(const std::string& filepath);

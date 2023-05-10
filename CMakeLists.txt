@@ -10,8 +10,10 @@ aux_source_directory(src/fs/vhdx SRC_FS_VHDX)
 aux_source_directory(src/io SRC_IO)
 aux_source_directory(src/util SRC_UTIL)
 
-add_executable(fswizard src/main.cpp ${SRC_COMMON} ${SRC_FS_V6PP} ${SRC_IO} ${SRC_UTIL})
-target_include_directories(fswizard PRIVATE include)
+set(SRC_V6PP ${SRC_COMMON} ${SRC_FS_V6PP} ${SRC_IO} ${SRC_UTIL})
 
 add_executable(testargs src/app/testargs.cpp src/common/argparse.cpp)
 target_include_directories(testargs PRIVATE include)
+
+add_executable(testimage src/app/testimage.cpp ${SRC_V6PP})
+target_include_directories(testimage PRIVATE include)

@@ -24,6 +24,8 @@ namespace v6pp {
 class Inode {
  public:
   // TODO: Inode methods
+  void format();
+
  public:
   /**
    * @brief
@@ -51,7 +53,7 @@ class Inode {
   u16 d_uid_;
   u16 d_gid_;
 
-  u32 d_size_;
+  u32 d_size_ = 0;
 
   /**
    * @brief
