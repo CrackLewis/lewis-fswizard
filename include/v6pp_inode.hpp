@@ -23,7 +23,6 @@ namespace v6pp {
  */
 class Inode {
  public:
-  // TODO: Inode methods
   void format();
 
  public:

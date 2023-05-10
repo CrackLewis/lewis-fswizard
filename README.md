@@ -7,7 +7,7 @@ A Unix V6++ diskfile program.
 Expected features:
 
 - [x] Unix V6++ disk formatting and operations.
-- [ ] Unix V6++ command line interface.
+- [x] Unix V6++ command line interface.
 - [ ] Transforming between Unix V6++ and other disk formats (e.g. VHDx).
 
 ## Courtesy
