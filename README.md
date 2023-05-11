@@ -19,7 +19,7 @@ This project is built using MinGW GCC 12.2.0 under Windows 11. Other versions of
 ```bash
 $ mkdir build
 $ cd build -G "MinGW Makefiles"
-$ cmake .. 
+$ cmake ..
 $ make
 ```
 
@@ -63,6 +63,8 @@ Once a disk image is generated, you can operate the image using the file system 
 ```bash
 $ v6pp-fs-cli.exe -image ../etc/c.img
 ```
+
+The client program not only supports a variety of basic Unix file utilities, but it also allows you to read disk data by using `testblock <block_id>`.
 
 ## Courtesy
 
