@@ -461,7 +461,6 @@ i32 FileSystem::format(const ArgPack& args) {
 
     mkdir({"dev"});
     _touch("/dev/tty1", FileType::CHAR_DEV);
-    _touch("/dingzhen", FileType::NORMAL);
 
     config_.speaker_("Formatting complete.");
   } catch (FileSystemException& e) {
