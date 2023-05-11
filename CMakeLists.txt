@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16.0)
 
-set(CMAKE_MAKEFILE_CODING "gbk")
+# set(CMAKE_MAKEFILE_CODING "gbk")
 
 project(fswizard VERSION 0.1.0)
 
