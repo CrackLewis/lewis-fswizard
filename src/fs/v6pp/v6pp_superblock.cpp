@@ -9,7 +9,10 @@
  *
  */
 
+#include <cstring>
+
 #include "v6pp_superblock.hpp"
+
 
 using namespace v6pp;
 

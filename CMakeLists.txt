@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.16.0)
 
 # set(CMAKE_MAKEFILE_CODING "gbk")
 
+add_compile_options(-std=c++17)
+
 project(fswizard VERSION 0.1.0)
 
 aux_source_directory(src/common SRC_COMMON)
@@ -23,8 +25,9 @@ set(SRC_V6PP ${SRC_COMMON} ${SRC_FS_V6PP} ${SRC_IO} ${SRC_UTIL})
 
 # add_executable(alterimage src/app/alterimage.cpp ${SRC_V6PP})
 # target_include_directories(alterimage PRIVATE include)
-add_executable(v6pp-fs-cli src/app/v6pp-fs-cli.cpp ${SRC_V6PP})
-target_include_directories(v6pp-fs-cli PRIVATE include)
+
+add_executable(v6pp-fs-local src/app/v6pp-fs-local.cpp ${SRC_V6PP})
+target_include_directories(v6pp-fs-local PRIVATE include)
 
 add_executable(makeimage src/app/makeimage.cpp ${SRC_V6PP})
 target_include_directories(makeimage PRIVATE include)

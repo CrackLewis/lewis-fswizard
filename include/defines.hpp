@@ -12,7 +12,9 @@
 #ifndef DEFINES_HPP_
 #define DEFINES_HPP_
 
+#include <cstddef>
 #include <cstdint>
+
 
 using i16 = int16_t;
 using i32 = int32_t;

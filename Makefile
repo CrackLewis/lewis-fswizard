@@ -15,16 +15,16 @@ SRCS = src/common/argparse.cpp \
 		src/util/time.cpp 
 
 INCLUDE = include
-CFLAGS = -g -O2 -I$(INCLUDE)
+CFLAGS = -g -O2 -I$(INCLUDE) -std=c++17
 TARGETDIR = build
 
 .PHONY: makeimage
 makeimage:
-	$(CC) $(CFLAGS) -o $(TARGETDIR)/makeimage.exe $(SRCS) src/app/makeimage.cpp 
+	$(CC) $(CFLAGS) -o $(TARGETDIR)/makeimage $(SRCS) src/app/makeimage.cpp 
 
-.PHONY: v6ppfscli
+.PHONY: v6ppfslocal
 v6ppfscli:
-	$(CC) $(CFLAGS) -o $(TARGETDIR)/v6pp-fs-cli.exe $(SRCS) src/app/v6pp-fs-cli.cpp 
+	$(CC) $(CFLAGS) -o $(TARGETDIR)/v6pp-fs-local $(SRCS) src/app/v6pp-fs-local.cpp 
 
 .PHONY: all
-all: makeimage v6ppfscli
+all: makeimage v6ppfslocal

@@ -14,6 +14,9 @@ Expected features:
 
 This project is built using MinGW GCC 12.2.0 under Windows 11. Other versions of GCC or Clang compilers might work, but the language support for C++17 is mandatory.
 
+Other compilers currently known to support the project:
+- TDM-GCC 9.2.0
+
 ### Using CMake
 
 ```bash

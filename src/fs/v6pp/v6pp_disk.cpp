@@ -9,6 +9,7 @@
  *
  */
 
+#include <cstring>
 #include <fstream>
 #include <functional>
 
@@ -21,6 +22,7 @@
 #include "v6pp_inode.hpp"
 #include "v6pp_inode_directory.hpp"
 #include "v6pp_superblock.hpp"
+
 
 using namespace v6pp;
 using namespace io;
