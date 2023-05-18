@@ -9,20 +9,22 @@ Expected features:
 - [x] Unix V6++ disk formatting and operations.
 - [x] Unix V6++ command line interface.
 - [ ] Transforming between Unix V6++ and other disk formats (e.g. VHDx).
+- [ ] Unix V6++ network application.
 
 ## Building
 
-This project is built using MinGW GCC 12.2.0 under Windows 11. Other versions of GCC or Clang compilers might work, but the language support for C++17 is mandatory.
+This project is built using MinGW GCC 12.2.0 under Windows 11. Other versions of GCC or Clang compilers might work, but the language support for C++17 and POSIX thread support is mandatory.
 
-Other compilers currently known to support the project:
-- TDM-GCC 9.2.0
+You can obtain a copy of the compiler I use through the link: [Compiler Download](https://github.com/niXman/mingw-builds-binaries/releases/download/12.2.0-rt_v10-rev2/x86_64-12.2.0-release-posix-seh-msvcrt-rt_v10-rev2.7z). 
+
+If there're multiple compilers in your computer, you might have to specify the compiler toolchain path in the `CMakeLists.txt` or `Makefile`. 
 
 ### Using CMake
 
 ```bash
 $ mkdir build
-$ cd build -G "MinGW Makefiles"
-$ cmake ..
+$ cd build 
+$ cmake .. -G "MinGW Makefiles"
 $ make
 ```
 
@@ -30,7 +32,7 @@ $ make
 
 ```bash
 $ mkdir build
-$ make all
+$ make all CC=/path/to/gcc
 ```
 
 ## How to use
@@ -64,7 +66,7 @@ $ makeimage.exe -image ../etc/c.img -kernel ../etc/kernel.bin -boot ../etc/boot.
 Once a disk image is generated, you can operate the image using the file system client program:
 
 ```bash
-$ v6pp-fs-cli.exe -image ../etc/c.img
+$ v6pp-fs-local.exe -image ../etc/c.img
 ```
 
 The client program not only supports a variety of basic Unix file utilities, but it also allows you to read disk data by using `testblock <block_id>`.
@@ -76,6 +78,6 @@ The client program not only supports a variety of basic Unix file utilities, but
 
 ## Disclaimer
 
-The source code of this repository can only be used for personal learning purposes. The source code and its creators are not responsible for the use of the source code. Any form of improper use is at your own peril.
+The source code of this repository can only be used for personal learning purposes. The creator of the source code in this repository is not responsible for the use of the source code. Any form of improper use is at your own peril.
 
 For more details view the LICENSE file.
