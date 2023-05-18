@@ -10,6 +10,9 @@
  */
 
 #include <iostream>
+#include <map>
+#include <mutex>
+#include <thread>
 
 #include "net_api.hpp"
 #include "net_packets.hpp"
@@ -86,70 +89,94 @@ int main() {
 
   std::cout << "Info: listening. " << std::endl;
 
-  char client_name[25];
-  i32 client_port;
-  socket_t client_socket =
-      Networking::accept(listen_socket, client_name, &client_port);
-  if (client_socket == Networking::INVALID_SOCKET) {
-    std::cerr << "Error: accept failed. " << std::endl;
-    Networking::close(listen_socket);
-    return -1;
+  std::map<socket_t, i32> sessions;
+  std::mutex mtx_sessions;
+  auto client_routine = [&](socket_t csock) {
+    // 会话数量检查。
+    mtx_sessions.lock();
+    if (sessions.size() >= 4u) {
+      greet(csock, ResponseCode::BUSY);
+      mtx_sessions.unlock();
+      return;
+    }
+    greet(csock, ResponseCode::OK);
+    sessions[csock] = 1;
+    mtx_sessions.unlock();
+
+    bool is_alive = true;
+
+    while (is_alive) {
+      Request req = recv_req(csock);
+      switch (req.header_.type_) {
+        case RequestType::GETCWD: {
+          reply_getcwd(csock, ResponseCode::OK, "mahosojo");
+          break;
+        }
+        case RequestType::OPERATION: {
+          std::string cli_seg = "", cli_cmd;
+          std::vector<std::string> cli_args;
+          bool has_cmd = false;
+          char ch;
+
+          for (i32 idx = 0; idx < req.header_.length_ - 1; ++idx) {
+            ch = req.text_[idx];
+            if (ch == ' ') {
+              if (cli_seg.length() == 0) continue;
+              if (!has_cmd) {
+                has_cmd = true;
+                cli_cmd = cli_seg;
+              } else
+                cli_args.emplace_back(cli_seg);
+              cli_seg = "";
+            } else {
+              cli_seg += ch;
+            }
+          }
+          if (cli_seg.length() > 0) {
+            if (!has_cmd)
+              cli_cmd = cli_seg;
+            else
+              cli_args.emplace_back(cli_seg);
+          }
+
+          std::string result = "Argsplit result of " + cli_cmd + ": \n";
+          for (const auto& arg : cli_args) {
+            result += arg + '\n';
+          }
+
+          reply_operation(csock, ResponseCode::OK, result);
+          break;
+        }
+        case RequestType::DISCONN: {
+          is_alive = false;
+          break;
+        }
+      }
+    }  // while (is_alive)
+
+    // 退出前，注销会话。
+    mtx_sessions.lock();
+    sessions.erase(csock);
+    mtx_sessions.unlock();
+    Networking::close(csock);
+  };
+
+  while (1) {
+    char client_name[25];
+    i32 client_port;
+    socket_t client_socket =
+        Networking::accept(listen_socket, client_name, &client_port);
+    if (client_socket == Networking::INVALID_SOCKET) {
+      std::cerr << "Error: accept failed. " << std::endl;
+      Networking::close(listen_socket);
+      return -1;
+    }
+
+    std::thread t(client_routine, client_socket);
+    t.detach();
   }
 
-  greet(client_socket, ResponseCode::OK);
-  bool is_alive = true;
-
-  while (is_alive) {
-    Request req = recv_req(client_socket);
-    switch (req.header_.type_) {
-      case RequestType::GETCWD: {
-        reply_getcwd(client_socket, ResponseCode::OK, "mahosojo");
-        break;
-      }
-      case RequestType::OPERATION: {
-        std::string cli_seg = "", cli_cmd;
-        std::vector<std::string> cli_args;
-        bool has_cmd = false;
-        char ch;
-
-        for (i32 idx = 0; idx < req.header_.length_ - 1; ++idx) {
-          ch = req.text_[idx];
-          if (ch == ' ') {
-            if (cli_seg.length() == 0) continue;
-            if (!has_cmd) {
-              has_cmd = true;
-              cli_cmd = cli_seg;
-            } else
-              cli_args.emplace_back(cli_seg);
-            cli_seg = "";
-          } else {
-            cli_seg += ch;
-          }
-        }
-        if (cli_seg.length() > 0) {
-          if (!has_cmd)
-            cli_cmd = cli_seg;
-          else
-            cli_args.emplace_back(cli_seg);
-        }
-
-        std::string result = "Argsplit result of " + cli_cmd + ": \n";
-        for (const auto& arg : cli_args) {
-          result += arg + '\n';
-        }
-
-        reply_operation(client_socket, ResponseCode::OK, result);
-        break;
-      }
-      case RequestType::DISCONN: {
-        is_alive = false;
-        break;
-      }
-    }
-  }  // while (is_alive)
-
   Networking::close(listen_socket);
-  Networking::close(client_socket);
 
   return 0;
 }
