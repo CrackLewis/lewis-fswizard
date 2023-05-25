@@ -9,6 +9,8 @@
  *
  */
 
+#include <cstdio>
+#include <ctime>
 #include <iostream>
 #include <map>
 #include <mutex>
@@ -16,6 +18,18 @@
 
 #include "net_api.hpp"
 #include "net_packets.hpp"
+
+#define LOGGING(...)                                                   \
+  do {                                                                 \
+    time_t lt = time(0);                                               \
+    tm* localt = localtime(&lt);                                       \
+    printf("[%04d-%02d-%02d %02d:%02d:%02d] ", localt->tm_year + 1900, \
+           localt->tm_mon + 1, localt->tm_mday, localt->tm_hour,       \
+           localt->tm_min, localt->tm_sec);                            \
+    printf("[%12s:%4d] ", __FILE__, __LINE__);                         \
+    printf(__VA_ARGS__);                                               \
+    putchar('\n');                                                     \
+  } while (0)
 
 Request recv_req(socket_t socket) {
   Request req;
@@ -67,27 +81,30 @@ void reply_operation(socket_t socket, ResponseCode code,
             text.length() + 1);
 }
 
+const char* LISTEN_ADDR = "127.0.0.1";
+const int LISTEN_PORT = 8888;
+
 int main() {
   socket_t listen_socket = Networking::socket();
   if (listen_socket == Networking::INVALID_SOCKET) {
-    std::cerr << "Error: socket creation failed. " << std::endl;
+    LOGGING("Error: socket creation failed.");
     return -1;
   }
 
-  if (Networking::bind(listen_socket, "127.0.0.1", 8888) ==
+  if (Networking::bind(listen_socket, LISTEN_ADDR, LISTEN_PORT) ==
       Networking::SOCKET_ERROR) {
-    std::cerr << "Error: binding failed. " << std::endl;
+    LOGGING("Error: binding failed. ");
     Networking::close(listen_socket);
     return -1;
   }
 
   if (Networking::listen(listen_socket, INT_MAX) == Networking::SOCKET_ERROR) {
-    std::cerr << "Error: listening failed" << std::endl;
+    LOGGING("Error: listening failed");
     Networking::close(listen_socket);
     return -1;
   }
 
-  std::cout << "Info: listening. " << std::endl;
+  LOGGING("Info: listening on %s:%d", LISTEN_ADDR, LISTEN_PORT);
 
   std::map<socket_t, i32> sessions;
   std::mutex mtx_sessions;
@@ -97,6 +114,7 @@ int main() {
     if (sessions.size() >= 4u) {
       greet(csock, ResponseCode::BUSY);
       mtx_sessions.unlock();
+      Networking::close(csock);
       return;
     }
     greet(csock, ResponseCode::OK);
@@ -107,6 +125,8 @@ int main() {
 
     while (is_alive) {
       Request req = recv_req(csock);
+      LOGGING("Info: received request from socket %lld.", csock);
+      
       switch (req.header_.type_) {
         case RequestType::GETCWD: {
           reply_getcwd(csock, ResponseCode::OK, "mahosojo");
@@ -167,15 +187,17 @@ int main() {
     socket_t client_socket =
         Networking::accept(listen_socket, client_name, &client_port);
     if (client_socket == Networking::INVALID_SOCKET) {
-      std::cerr << "Error: accept failed. " << std::endl;
+      LOGGING("Error: accept failed");
       Networking::close(listen_socket);
       return -1;
     }
+    LOGGING("Info: %s:%d connected. ", client_name, client_port);
 
     std::thread t(client_routine, client_socket);
     t.detach();
   }
 
+  LOGGING("Info: server closed.");
   Networking::close(listen_socket);
 
   return 0;
