@@ -32,10 +32,10 @@ target_include_directories(v6pp-fs-local PRIVATE include)
 add_executable(makeimage src/app/makeimage.cpp ${SRC_V6PP})
 target_include_directories(makeimage PRIVATE include)
 
-add_executable(netserver src/app/netserver.cpp ${SRC_V6PP_NET})
+add_executable(netserver src/app/v6pp-fs-server.cpp ${SRC_V6PP_NET})
 target_include_directories(netserver PRIVATE include)
 target_link_libraries(netserver PRIVATE wsock32)
 
-add_executable(netclient src/app/netclient.cpp ${SRC_V6PP_NET})
+add_executable(netclient src/app/v6pp-fs-client.cpp ${SRC_V6PP_NET})
 target_include_directories(netclient PRIVATE include)
 target_link_libraries(netclient PRIVATE wsock32)
